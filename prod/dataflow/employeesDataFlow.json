@@ -1,0 +1,105 @@
+{
+	"name": "employeesDataFlow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_csv",
+						"type": "DatasetReference"
+					},
+					"name": "employees"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "ls_adls",
+						"type": "LinkedServiceReference"
+					},
+					"name": "Destination",
+					"rejectedDataLinkedService": {
+						"referenceName": "ls_adls",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
+			"transformations": [
+				{
+					"name": "ConvertToDateType"
+				},
+				{
+					"name": "RankDepartmentWise"
+				},
+				{
+					"name": "DepartmentWiseHighestSalary"
+				},
+				{
+					"name": "AllowAllRows"
+				},
+				{
+					"name": "RequiredColumns"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as short,",
+				"          first_name as string,",
+				"          last_name as string,",
+				"          age as short,",
+				"          gender as string,",
+				"          email as string,",
+				"          phone as long,",
+				"          city as string,",
+				"          country as string,",
+				"          department as string,",
+				"          salary as double,",
+				"          status as string,",
+				"          created_at as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> employees",
+				"employees derive(created_at = toDate(created_at, 'yyyy-MM-dd HH:mm:ss', 'locale')) ~> ConvertToDateType",
+				"RequiredColumns window(over(department),",
+				"     desc(salary, true),",
+				"     rank = rowNumber()) ~> RankDepartmentWise",
+				"RankDepartmentWise filter(equals(rank, 1)) ~> DepartmentWiseHighestSalary",
+				"DepartmentWiseHighestSalary alterRow(insertIf(1==1)) ~> AllowAllRows",
+				"ConvertToDateType select(mapColumn(",
+				"          id,",
+				"          first_name,",
+				"          last_name,",
+				"          department,",
+				"          salary,",
+				"          created_at",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RequiredColumns",
+				"AllowAllRows sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'sink',",
+				"     folderPath: 'HighestPaidEmployees',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('key',",
+				"          0,",
+				"          department",
+				"     )) ~> Destination"
+			]
+		}
+	}
+}

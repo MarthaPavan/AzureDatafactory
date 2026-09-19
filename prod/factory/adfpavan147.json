@@ -1,0 +1,15 @@
+{
+	"name": "adfpavan147",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "09d93d8e-0c5d-4462-abb5-b0371f155e43",
+		"tenantId": "66b43cab-8380-4a4c-8b4e-2b671d551a47"
+	}
+}
