@@ -1,0 +1,13 @@
+{
+	"name": "ls_databricks",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-7405605810282770.10.azuredatabricks.net",
+			"authentication": "MSI",
+			"workspaceResourceId": "/subscriptions/1baa44a2-11eb-43ca-8f0b-9d3d6a23fa4b/resourceGroups/ADF/providers/Microsoft.Databricks/workspaces/adbpavan147",
+			"existingClusterId": "0920-065920-rcakfc82"
+		}
+	}
+}
